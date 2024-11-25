@@ -1,1 +1,427 @@
-new
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RTC Calculator | Renewable Energy Solutions</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #3a4a5a;
+            --secondary-color: #4a90e2;
+            --background-color: #f0f4f8;
+            --form-background: #ffffff;
+            --input-background: #bddce8;
+            --text-color: #333333;
+            --button-color: #4a90e2;
+            --top-bar-background: #f5f5dc;
+            --seg-button-bg: #0a9cd4;
+            --seg-button-hl: #b1e6fa;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--background-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            color: var(--text-color);
+        }
+
+        .container {
+            display: flex;
+            padding-top: 40px;
+            justify-content: space-between;
+            gap: 20px;
+            margin-top: 20px;
+            background-color: #ffffff;
+        }
+
+        h1 {
+            text-align: center;
+            color: var(--primary-color);
+            margin-top: 0;
+            margin-bottom: 30px;
+            font-weight: 700;
+            font-size: 2.2em;
+        }
+
+        .form-group {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+            flex-wrap: wrap;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 600;
+            color: var(--primary-color);
+            font-size: 0.9em;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 15px;
+            font-size: 0.95em;
+            border: 2px solid transparent;
+            border-radius: 20px;
+            border-color: #bfd9e3;
+            box-sizing: border-box;
+            transition: all 0.3s ease;
+            background-color: var(--input-background);
+        }
+
+        .form-group input:focus {
+            border-color: var(--secondary-color);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.2);
+        }
+
+        .form-group > div {
+            width: 32%;
+            margin-bottom: 15px;
+        }
+
+        .form-box {
+            display: flex;
+            gap: 20px;
+            width: 100%;
+        }
+
+        .left-section {
+            flex: 5;
+            padding: 30px;
+            background-color: var(--form-background);
+            border-radius: 16px;
+        }
+
+        .right-section {
+            flex: 3;
+            padding: 30px;
+            background-color: var(--form-background);
+            border-radius: 16px;
+        }
+
+        button {
+            width: 100%;
+            padding: 15px;
+            background-color: var(--secondary-color);
+            color: white;
+            font-size: 1em;
+            font-weight: 600;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #3a7bc8;
+            transform: translateY(-2px);
+        }
+
+        @media (max-width: 800px) {
+            .form-group > div {
+                width: 100%;
+            }
+            .container {
+                padding: 30px 20px;
+            }
+            .form-box {
+                flex-direction: column;
+            }
+        }
+
+        .input-icon {
+            position: relative;
+        }
+
+        .input-icon::before {
+            content: 'MW';
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #95a5a6;
+            font-size: 0.85em;
+            pointer-events: none;
+        }
+
+        .bess-input-icon::before {
+            content: 'MWh';
+        }
+
+        .percentage-input-icon::before {
+            content: '%';
+        }
+
+        .form-section {
+            background-color: var(--form-background);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 25px;
+            transition: all 0.3s ease;
+        }
+
+        .form-section h2 {
+            color: var(--primary-color);
+            margin-top: 0;
+            margin-bottom: 20px;
+            font-size: 1.3em;
+        }
+
+        .calculate-button {
+            position: fixed;
+            width: 300px;
+            bottom: 30px;
+            left: 50%;
+            right: 10%;
+            transform: translateX(-50%);
+            padding: 15px 50px;
+            background-color: var(--button-color);
+            color: white;
+            font-size: 1.2em;
+            font-weight: 600;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .calculate-button:hover {
+            background-color: #3a7bc8;
+            transform: translateX(-50%) translateY(-10%);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .top-bar {
+            background-color: var(--seg-button-bg);
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%; 
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); 
+            z-index: 1000;
+            position: fixed;
+            top: 0%;
+            padding-bottom: 30px;
+            
+        }
+
+        .top-bar-menu {
+            display: flex;
+            padding: 15px 20px;
+            gap: 30px;
+            
+        }
+
+        .top-bar-menu a {
+            color: #ffffff;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .segmented-control {
+            left: 75%;
+            top: 2%;
+            display: inline-flex;
+            background-color: var(--seg-button-hl);
+            border-radius: 30px;
+            overflow: hidden;
+            padding: 7px;
+            position: fixed;
+        }
+
+        .segmented-control label {
+            padding: 15px 25px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            color: #000000;
+        }
+
+        .segmented-control input[type="radio"] {
+            display: none;
+        }
+
+        .segmented-control input[type="radio"]:checked + label {
+            background-color: var(--seg-button-bg);
+            border-radius: 30px;
+            color: #ffffff;
+        }
+
+
+        .solar-section { border: 2px solid #f39c12; }
+        .wind-section { border: 2px solid #27ae60; }
+        .bess-section { border: 2px solid #8e44ad; }
+        .battery-section { border: 2px solid #3498db; }
+        .battery-section .form-group > div {
+            width: 48%;
+        }
+        .const-section { border: 2px solid #f99026; }
+        .const-section .form-group > div {
+            width: 48%;
+        }
+        .output-parameters-section { border: 2px solid #e74c3c; }
+        .output-parameters-section .form-group > div {
+            width: 48%;
+        }
+    </style>
+</head>
+
+<body>
+    
+    <div class="top-bar">
+        <div class="top-bar-menu">
+            <a href="#">Configuration Optimization</a>
+            <a href="#">EMS</a>
+            <a href="#">About</a>
+            <a href="#">Documentation</a>
+        </div>
+        <div class="segmented-control">
+            <input type="radio" id="technical" name="view" value="technical" checked>
+            <label for="technical">Technical</label>
+            <input type="radio" id="financial" name="view" value="financial" onclick="window.location.href='{{ url_for('financial') }}'">
+            <label for="financial">Financial</label>
+        </div>
+    </div>
+    <div class="container">
+        <form id="rtcForm" action="/results" method="POST">
+            <div class="form-box">
+                <!-- Left Section (RTC inputs) -->
+                <div class="left-section">
+                    <h3>Enter custom values for the technical variables </h3>
+                    <!-- Battery Parameters Section -->
+                    <div class="form-section battery-section">
+                        <h2>Battery Energy Storage System (BESS) Parameters</h2>
+                        <div class="form-group">
+                            <div>
+                                <label for="inverter_efficiency">Inverter Efficiency (%):</label>
+                                <input type="number" id="inverter_efficiency" name="inverter_efficiency" value="98.40" required>
+                            </div>
+                            <div>
+                                <label for="bat_dod_limit">Depth of Discharge (%):</label>
+                                <input type="number" id="bat_dod_limit" name="bat_dod_limit" value="98" required>
+                            </div>
+                            <div>
+                                <label for="ch_efficiency">Battery charging Efficiency (%):</label>
+                                <input type="number" id="ch_efficiency" name="ch_efficiency" value="95.21" required>
+                            </div>
+                            <div>
+                                <label for="dis_efficiency">Battery discharging Efficiency (%):</label>
+                                <input type="number" id="dis_efficiency" name="dis_efficiency" value="95.21" required>
+                            </div>
+                            <div>
+                                <label for="pcs_converter">PCS converter Efficiency:</label>
+                                <input type="number" id="pcs_converter" name="pcs_converter" value="98.40" required>
+                            </div>
+                            <div>
+                                <label for="trans_efficiency">Transformer efficiency:</label>
+                                <input type="number" id="trans_efficiency" name="trans_efficiency" value="99" required>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Output Parameters Section -->
+                    <div class="form-section output-parameters-section">
+                        <h2>Output Parameters</h2>
+                        <div class="form-group">
+                            <div>
+                                <label for="rtc_required">RTC Demand:</label>
+                                <div class="input-icon">
+                                    <input type="number" id="rtc_required" name="rtc_required" value="1600" required>
+                                </div>
+                            </div>
+                            <div>
+                                <label for="cutoff">% RTC to be Achieved:</label>
+                                <div class="input-icon percentage-input-icon">
+                                    <input type="number" id="cutoff" name="cutoff" value="85" required>
+                                </div>
+                            </div>
+                        </div> 
+                    </div>
+                </div>
+                
+                <!-- Right Section (Battery Parameters and Output Parameters) -->
+                <div class="right-section">
+                    <!-- Solar Section -->
+                    <div class="form-section const-section">
+                        <h2>Solar Capacity</h2>
+                        <div class="form-group">
+                            <div>
+                                <label for="solar_capacity_start">Start:</label>
+                                <div class="input-icon">
+                                    <input type="number" id="solar_capacity_start" name="solar_capacity_start" value="1000" required>
+                                </div>
+                            </div>
+                            <div>
+                                <label for="solar_capacity_end">End:</label>
+                                <div class="input-icon">
+                                    <input type="number" id="solar_capacity_end" name="solar_capacity_end" value="8000" required>
+                                </div>
+                            </div>
+                            <div>
+                                <div>
+                                    <input type="hidden" id="solar_step" name="solar_step" value="1000" required>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Wind Section -->
+                        <h2>Wind Capacity</h2>
+                        <div class="form-group">
+                            <div>
+                                <label for="wind_capacity_start">Start:</label>
+                                <div class="input-icon">
+                                    <input type="number" id="wind_capacity_start" name="wind_capacity_start" value="1000" required>
+                                </div>
+                            </div>
+                            <div>
+                                <label for="wind_capacity_end">End:</label>
+                                <div class="input-icon">
+                                    <input type="number" id="wind_capacity_end" name="wind_capacity_end" value="8000" required>
+                                </div>
+                            </div>
+                            <div>
+                                <div>
+                                    <input type="hidden" id="wind_step" name="wind_step" value="1000" required>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- BESS Section -->
+                        <h2>BESS</h2>
+                        <div class="form-group">
+                            <div>
+                                <label for="bess_initial_cap">Start:</label>
+                                <div class="input-icon bess-input-icon">
+                                    <input type="number" id="bess_initial_cap" name="bess_initial_cap" value="2000" required>
+                                </div>
+                            </div>
+                            <div>
+                                <label for="bess_total_cap">End:</label>
+                                <div class="input-icon bess-input-icon">
+                                    <input type="number" id="bess_total_cap" name="bess_total_cap" value="18000" required>
+                                </div>
+                            </div>
+                            <div>
+                                <div>
+                                    <input type="hidden" id="bess_step" name="bess_step" value="2000" required>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                        
+                    </div>
+                </div>
+            </div>
+
+            <!-- Submit Button -->
+            <button type="submit" class="calculate-button">Calculate</button>
+        </form>
+    </div>
+</body>
+
+</html>
