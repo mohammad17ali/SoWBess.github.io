@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configuration Optimizer</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.1/chart.min.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f0f4f8;
+        }
+        .container {
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+        h1, h2 {
+            color: #2c3e50;
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        h2 {
+            margin-top: 0;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+        }
+        .dataframe {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            margin: 20px 0;
+            font-size: 16px;
+            text-align: left;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .dataframe th, .dataframe td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        .dataframe thead {
+            background-color: #3498db;
+            color: white;
+        }
+        .dataframe tr:last-child td {
+            border-bottom: none;
+        }
+        .dataframe tbody tr:hover {
+            background-color: #f5f5f5;
+            transition: background-color 0.3s ease;
+        }
+        .plot-container {
+            width: 100%;
+            height: 400px;
+            margin-bottom: 30px;
+        }
+        .tabs {
+            display: flex;
+            margin-bottom: 20px;
+        }
+        .tab {
+            padding: 10px 20px;
+            background-color: #ecf0f1;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px 5px 0 0;
+            margin-right: 5px;
+        }
+        .tab.active {
+            background-color: #3498db;
+            color: white;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .download-btn {
+            display: inline-block;
+            padding: 10px 15px;
+            background-color: #2ecc71;
+            color: white;
+            border-radius: 5px;
+            text-decoration: none;
+            margin-bottom: 15px;
+            cursor: pointer;
+        }
+        .download-btn:hover {
+            background-color: #27ae60;
+        }
+    </style>
+</head>
+<body>
+    <h1>Configuration Comparison</h1>
+
+    <div class="container">
+        <h2>Best Configuration</h2>
+        <a class="download-btn" onclick="downloadTable('hourlyProfileTable')">Download Hourly Profile Table</a>
+        <div id="hourlyProfileTable" style="display: none;">
+            {{ table4 | safe }}
+        </div>
+        <div id="tableView3" class="tab-content active">
+            {{ table3 | safe }}
+        </div>
+        
+        
+    </div>
+    
+    
+    <div class="container">
+        <h2>Parallel Categories Plot </h2>
+        <div class="plot-container">
+            {{ plot1_html | safe }}
+        </div>
+    </div>
+
+    <div class="container">
+        <h2>Parallel Coordinates Plot</h2>
+        <div class="plot-container">
+            {{ plot2_html | safe }}
+        </div>
+    </div>
+
+    <div class="container">
+        <h2>Capex vs Success Rate Scatter Plot</h2>
+        <div class="plot-container">
+            {{ scatter_html | safe }}
+        </div>
+    </div>
+
+    <div class="container">
+        <h2>Best Combination for each value of Solar Capacity with Success Rate ≥ 85%</h2>
+        <div class="tabs">
+            <button class="tab active" onclick="openTab(event, 'tableView1')">Table View</button>
+            <button class="tab" onclick="openTab(event, 'chartView1')">Chart View</button>
+        </div>
+        <div id="tableView1" class="tab-content active">
+            <a class="download-btn" onclick="downloadTable('tableView1')">Download Table</a>
+            {{ table1 | safe }}
+        </div>
+        <div id="chartView1" class="tab-content">
+            <canvas id="successRateChart1"></canvas>
+        </div>
+    </div>
+
+    <div class="container">
+        <h2>Filtered Combinations with Success Rate ≥ 85%</h2>
+        <div class="tabs">
+            <button class="tab active" onclick="openTab(event, 'tableView2')">Table View</button>
+            <button class="tab" onclick="openTab(event, 'chartView2')">Chart View</button>
+        </div>
+        <div id="tableView2" class="tab-content active">
+            <a class="download-btn" onclick="downloadTable('tableView2')">Download Table</a>
+            {{ table2 | safe }}
+        </div>
+        <div id="chartView2" class="tab-content">
+            <canvas id="successRateChart2"></canvas>
+        </div>
+    </div>
+
+    <script>
+        function openTab(evt, tabName) {
+            var i, tabContent, tabLinks;
+            tabContent = document.getElementsByClassName("tab-content");
+            for (i = 0; i < tabContent.length; i++) {
+                tabContent[i].style.display = "none";
+            }
+            tabLinks = document.getElementsByClassName("tab");
+            for (i = 0; i < tabLinks.length; i++) {
+                tabLinks[i].className = tabLinks[i].className.replace(" active", "");
+            }
+            document.getElementById(tabName).style.display = "block";
+            evt.currentTarget.className += " active";
+        }
+
+        // Function to create a CSV from table data
+        function downloadTable(tabId) {
+            var table = document.getElementById(tabId).querySelector('.dataframe');
+            var csv = [];
+            var rows = table.querySelectorAll("tr");
+
+            for (var i = 0; i < rows.length; i++) {
+                var row = [], cols = rows[i].querySelectorAll("td, th");
+                for (var j = 0; j < cols.length; j++) 
+                    row.push(cols[j].innerText);
+                csv.push(row.join(","));        
+            }
+
+            // Download CSV
+            var csvFile = new Blob([csv.join("\n")], {type: "text/csv"});
+            var downloadLink = document.createElement("a");
+            downloadLink.download = "table_data.csv";
+            downloadLink.href = window.URL.createObjectURL(csvFile);
+            downloadLink.style.display = "none";
+            document.body.appendChild(downloadLink);
+            downloadLink.click();
+            document.body.removeChild(downloadLink);
+        }
+
+        // Create a chart for the success rates
+        var ctx1 = document.getElementById('successRateChart1').getContext('2d');
+        var successRateChart1 = new Chart(ctx1, {
+            type: 'bar',
+            data: {
+                labels: [], // Will be filled with combinations
+                datasets: [{
+                    label: 'Success Rate',
+                    data: [], // Will be filled with success rates
+                    backgroundColor: 'rgba(52, 152, 219, 0.6)',
+                    borderColor: 'rgba(52, 152, 219, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100
+                    }
+                }
+            }
+        });
+
+        // Function to update the chart with data from the table
+        function updateChartFromTable(chartId, tableId) {
+            var table = document.querySelector('#' + tableId + ' .dataframe');
+            var rows = table.querySelectorAll('tbody tr');
+            var labels = [];
+            var data = [];
+
+            rows.forEach(function(row) {
+                var cells = row.querySelectorAll('td');
+                var label = cells[0].textContent + '/' + cells[1].textContent + '/' + cells[2].textContent;
+                var successRate = parseFloat(cells[3].textContent) * 100;
+                labels.push(label);
+                data.push(successRate);
+            });
+
+            var chart = document.getElementById(chartId).getContext('2d');
+            chart.data.labels = labels;
+            chart.data.datasets[0].data = data;
+            chart.update();
+        }
+
+        // Call the function to populate the chart
+        updateChartFromTable('successRateChart1', 'tableView1');
+    </script>
+</body>
+</html>
+
+
